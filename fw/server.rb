@@ -31,7 +31,7 @@ class Server
     logger = Logger.new(STDOUT)
     @_schemas = {}
     logger.info 'Loading schema'
-    Dir.glob('./lib/schemas/**/*.yml').each do |file|
+    Dir.glob('./lib/schema/**/*.yml').each do |file|
       @_schemas[file[10..-4]] = YAML.load_file(file)
     end
   end
