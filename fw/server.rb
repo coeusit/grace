@@ -127,7 +127,7 @@ class Server
       logger.info 'Initializing EM channel'
 
       $ch = EM::Channel.new
-      if ENV['RUBY_ENV'] == 'development' || !File.file?('./ssl/privkey.pem' || !File.file?('./ssl/privkey.pem')
+      if ENV['RUBY_ENV'] == 'development' || !File.file?('./ssl/privkey.pem') || !File.file?('./ssl/privkey.pem')
         emws_opt = {
           :host => '0.0.0.0',
           :port => 80
