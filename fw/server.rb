@@ -124,7 +124,7 @@ class Server
     EM.run do
       logger = Logger.new(STDOUT)
       logger.info "Initializing Grace server in #{ENV['RUBY_ENV']} mode"
-
+      load_config
       init_amqp
       load_schema
       start_filewatcher
