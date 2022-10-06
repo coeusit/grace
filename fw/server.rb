@@ -18,6 +18,7 @@ end
 
 class Server
   @_amqp_exchange = nil
+  @config = {}
   @@_sessions = {}
   def reload_actions
     logger = Logger.new(STDOUT)
@@ -113,6 +114,11 @@ class Server
         #end
       end
     end
+  end
+  def load_config
+    logger = Logger.new(STDOUT)
+    logger.info "Loading config"
+    @config = YAML.load_file('./config/grace.yml')
   end
   def run(_server_options)
     EM.run do
