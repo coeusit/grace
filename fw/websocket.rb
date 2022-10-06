@@ -1,2 +1,0 @@
-class Websocket
-end
