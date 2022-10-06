@@ -131,8 +131,6 @@ class Server
       reload_actions
 
       logger.info 'Initializing EM channel'
-
-      logger.info 'Initializing websocket server'
       $ch = EM::Channel.new
       if @config['server'] == 'websocket'
         if ENV['RUBY_ENV'] == 'development' || !File.file?('./ssl/privkey.pem') || !File.file?('./ssl/privkey.pem')
@@ -151,6 +149,7 @@ class Server
             }
           }
         end
+        logger.info 'Initializing websocket server'
         EM::WebSocket.start(emws_opt) do |_ws|
           _ws.onopen { |handshake|
             logger = Logger.new(STDOUT)
