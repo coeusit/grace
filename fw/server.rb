@@ -149,44 +149,49 @@ class Server
           }
         }
       end
-      logger.info 'Initializing websocket server'
-      EM::WebSocket.start(emws_opt) do |_ws|
-        _ws.onopen { |handshake|
-          logger = Logger.new(STDOUT)
-          _sid = $ch.subscribe do |_cm|
-            _session = get_session(_sid)
-            if _session != nil && _session.authenticated
-              if _cm.has_key?(:user_id) && _cm[:user_id] == _session.user_id
-                _ws.send JSON.generate(_cm[:message])
-              end
-            end
-          end
-          logger.info "Connection opened [#{_sid}]"
-          @@_sessions[_sid] = Session.new(_sid)
-          _ws.onclose {
-            @@_sessions.delete(_sid)
-            logger.info "Connection closed [#{_sid}]"
-          }
-          _ws.onmessage { |_msg|
-            _session = get_session(_sid)
-            if ENV['RUBY_ENV'] == 'development'
-              logger.info "Received message: " + _msg.inspect
-            end
-            if valid_json?(_msg)
-              _parsed_message = JSON.parse(_msg)
-              _r = interpret_message(_parsed_message, _sid)
-              if _r != false
-                if _r.class == Hash
-                  _ws.send(JSON.generate(_r))
-                elsif _r.class == Array
-                  _r.each do |_rm|
-                    _ws.send(JSON.generate(_rm))
-                  end
+      if @config['server'] == 'websocket'
+        logger.info 'Initializing websocket server'
+        EM::WebSocket.start(emws_opt) do |_ws|
+          _ws.onopen { |handshake|
+            logger = Logger.new(STDOUT)
+            _sid = $ch.subscribe do |_cm|
+              _session = get_session(_sid)
+              if _session != nil && _session.authenticated
+                if _cm.has_key?(:user_id) && _cm[:user_id] == _session.user_id
+                  _ws.send JSON.generate(_cm[:message])
                 end
               end
             end
+            logger.info "Connection opened [#{_sid}]"
+            @@_sessions[_sid] = Session.new(_sid)
+            _ws.onclose {
+              @@_sessions.delete(_sid)
+              logger.info "Connection closed [#{_sid}]"
+            }
+            _ws.onmessage { |_msg|
+              _session = get_session(_sid)
+              if ENV['RUBY_ENV'] == 'development'
+                logger.info "Received message: " + _msg.inspect
+              end
+              if valid_json?(_msg)
+                _parsed_message = JSON.parse(_msg)
+                _r = interpret_message(_parsed_message, _sid)
+                if _r != false
+                  if _r.class == Hash
+                    _ws.send(JSON.generate(_r))
+                  elsif _r.class == Array
+                    _r.each do |_rm|
+                      _ws.send(JSON.generate(_rm))
+                    end
+                  end
+                end
+              end
+            }
           }
-        }
+        end
+      elsif @config['rest']
+      else
+        logger.error 'No server defined'
       end
       logger.info 'Server initialized'
     end
