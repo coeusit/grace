@@ -132,25 +132,25 @@ class Server
 
       logger.info 'Initializing EM channel'
 
+      logger.info 'Initializing websocket server'
       $ch = EM::Channel.new
-      if ENV['RUBY_ENV'] == 'development' || !File.file?('./ssl/privkey.pem') || !File.file?('./ssl/privkey.pem')
-        emws_opt = {
-          :host => '0.0.0.0',
-          :port => 80
-        }
-      else
-        emws_opt = {
-          :host => '0.0.0.0',
-          :port => 80,
-          :secure => true,
-          :tls_options => {
-            :private_key_file => './ssl/privkey.pem',
-            :cert_chain_file => './ssl/fullchain.pem'
-          }
-        }
-      end
       if @config['server'] == 'websocket'
-        logger.info 'Initializing websocket server'
+        if ENV['RUBY_ENV'] == 'development' || !File.file?('./ssl/privkey.pem') || !File.file?('./ssl/privkey.pem')
+          emws_opt = {
+            :host => '0.0.0.0',
+            :port => 80
+          }
+        else
+          emws_opt = {
+            :host => '0.0.0.0',
+            :port => 80,
+            :secure => true,
+            :tls_options => {
+              :private_key_file => './ssl/privkey.pem',
+              :cert_chain_file => './ssl/fullchain.pem'
+            }
+          }
+        end
         EM::WebSocket.start(emws_opt) do |_ws|
           _ws.onopen { |handshake|
             logger = Logger.new(STDOUT)
