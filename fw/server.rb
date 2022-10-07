@@ -7,6 +7,7 @@ require 'google/cloud/storage'
 require 'rotp'
 require 'logger'
 require 'filewatcher'
+require 'thin'
 require './lib/fw/session.rb'
 
 def valid_json?(json)
@@ -203,7 +204,18 @@ class Server
         logger.info 'Server initialized'
       elsif @config['server'] == 'rest'
         logger.info 'Initializing REST server'
-        
+        dispatch = Rack::Builder.app do
+          map '/' do
+            run HttpSrv.new
+          end
+        end
+        Rack::Server.start({
+          app:    dispatch,
+          server: 'thin',
+          signals: false,
+          Host:   '0.0.0.0',
+          Port:   80
+        })
         logger.info 'Server initialized'
       else
         logger.error 'No server defined'
