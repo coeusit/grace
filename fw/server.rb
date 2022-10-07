@@ -25,6 +25,9 @@ class Server
     logger = Logger.new(STDOUT)
     logger.info 'Loading actions'
     clear_actions
+    Dir.glob('./lib/common/init/**/*.rb').each do |file|
+      eval(File.open(file).read)
+    end
     Dir.glob('./init/**/*.rb').each do |file|
       eval(File.open(file).read)
     end
@@ -76,15 +79,15 @@ class Server
       _opt[k] = eval(v)
     }
     if @_actions.has_key?(msg['action'])
-      _action = @_actions[msg['action']][:class].new(_opt)
+      action = @_actions[msg['action']][:class].new(_opt)
       if ENV['RUBY_ENV'] == 'development'
         logger = Logger.new(STDOUT)
         logger.info "Calling action: #{msg['action']}"
       end
       if @_actions[msg['action']][:content] == nil
-        response = _action.execute
+        response = action.execute
       else
-        response = _action.execute(@_actions[msg['action']][:content])
+        response = action.execute(@_actions[msg['action']][:content])
       end
     end
     return response
@@ -93,7 +96,7 @@ class Server
     if ENV['RUBY_ENV'] == 'development'
       logger = Logger.new(STDOUT)
       logger.info 'Initializing filewatcher'
-      filewatcher = Filewatcher.new(['./actions','./lib/common/actions'])
+      filewatcher = Filewatcher.new(['./actions','./lib/common/actions','./init','./lib/common/init'])
       Thread.new(filewatcher) { |fw| fw.watch { reload_actions } }
       filewatcher = Filewatcher.new('./lib/common/schema')
       Thread.new(filewatcher) { |fw| fw.watch { load_schema } }
