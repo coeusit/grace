@@ -54,20 +54,23 @@ class Session
   def session_expiration
     return ENV.has_key?('SESSION_EXPIRATION') ? ENV['SESSION_EXPIRATION'] : 86400
   end
-  def initialize(_sid, _uuid = nil, _redis = nil)
-    @_sid = _sid
-    if _redis == nil
+  def initialize(opt)
+    if !opt.has_key?(:redis)
       _redis_url = ENV.has_key?('REDIS_HOST') ? ENV['REDIS_HOST'] : 'redis://redis:6379/0'
     else
-      _redis_url = _redis
+      _redis_url = opt[:redis]
     end
     @_redis = Redis.new(url: _redis_url)
-    if _uuid == nil
-      set_uuid(SecureRandom.uuid)
-    else
-      set_uuid(_uuid)
+    if opt.has_key?(:sid)
+      @_sid = opt[:sid]
     end
-    set_key(SecureRandom.hex(16))
+    if opt.has_key?(:session_id) && opt.has_key?(:session_key) && verify_key(opt[:session_id], opt[:session_key])
+      set_uuid(opt[:session_id])
+      set_key(opt[:session_key])
+    else
+      set_uuid(SecureRandom.uuid)
+      set_key(SecureRandom.hex(16))
+    end
   end
   def deauth
     set_auth(false)

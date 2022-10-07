@@ -32,7 +32,7 @@ class Server
     logger = Logger.new(STDOUT)
     @_schemas = {}
     logger.info 'Loading schema'
-    Dir.glob('./lib/schema/**/*.yml').each do |file|
+    Dir.glob('./lib/common/schema/**/*.yml').each do |file|
       @_schemas[file[10..-4]] = YAML.load_file(file)
     end
   end
@@ -52,11 +52,21 @@ class Server
   def get_session(_sid)
     return @@_sessions[_sid]
   end
-  def interpret_message(_msg, _sid)
-    _response = false
+  def interpret_message(opt = {})
+    # _msg, _sid
+    msg = opt.has_key?(:msg) ? opt[:msg] : {}
+    session = nil
+    if opt.has_key?(:sid)
+      session = get_session(opt[:sid])
+    elsif opt.has_key?(:session_id) && opt.has_key?(:session_key)
+      session = Session.new(session_id: opt[:session_id], session_key: opt[:session_key])
+    else
+      session = Session.new
+    end
+    response = false
     _data = {}
-    if _msg.has_key?('data')
-      _data = _msg['data']
+    if msg.has_key?('data')
+      _data = msg['data']
     end
     _opt = {
       params: _data
@@ -64,26 +74,28 @@ class Server
     @_plugins.each {|k,v|
       _opt[k] = eval(v)
     }
-    if @_actions.has_key?(_msg['action'])
-      _action = @_actions[_msg['action']][:class].new(_opt)
+    if @_actions.has_key?(msg['action'])
+      _action = @_actions[msg['action']][:class].new(_opt)
       if ENV['RUBY_ENV'] == 'development'
         logger = Logger.new(STDOUT)
-        logger.info "Calling action: #{_msg['action']}"
+        logger.info "Calling action: #{msg['action']}"
       end
-      if @_actions[_msg['action']][:content] == nil
-        _response = _action.execute
+      if @_actions[msg['action']][:content] == nil
+        response = _action.execute
       else
-        _response = _action.execute(@_actions[_msg['action']][:content])
+        response = _action.execute(@_actions[msg['action']][:content])
       end
     end
-    return _response
+    return response
   end
   def start_filewatcher
     if ENV['RUBY_ENV'] == 'development'
       logger = Logger.new(STDOUT)
       logger.info 'Initializing filewatcher'
-      filewatcher = Filewatcher.new('./actions')
+      filewatcher = Filewatcher.new(['./actions','./lib/common/actions'])
       Thread.new(filewatcher) { |fw| fw.watch { reload_actions } }
+      filewatcher = Filewatcher.new('./lib/common/schema')
+      Thread.new(filewatcher) { |fw| fw.watch { load_schema } }
       logger.info 'Filewatcher initialized'
     end
   end
@@ -133,6 +145,7 @@ class Server
       logger.info 'Initializing EM channel'
       $ch = EM::Channel.new
       if @config['server'] == 'websocket'
+        logger.info 'Initializing websocket server'
         if ENV['RUBY_ENV'] == 'development' || !File.file?('./ssl/privkey.pem') || !File.file?('./ssl/privkey.pem')
           emws_opt = {
             :host => '0.0.0.0',
@@ -149,38 +162,37 @@ class Server
             }
           }
         end
-        logger.info 'Initializing websocket server'
         EM::WebSocket.start(emws_opt) do |_ws|
           _ws.onopen { |handshake|
             logger = Logger.new(STDOUT)
-            _sid = $ch.subscribe do |_cm|
-              _session = get_session(_sid)
+            sid = $ch.subscribe do |_cm|
+              _session = get_session(sid)
               if _session != nil && _session.authenticated
                 if _cm.has_key?(:user_id) && _cm[:user_id] == _session.user_id
                   _ws.send JSON.generate(_cm[:message])
                 end
               end
             end
-            logger.info "Connection opened [#{_sid}]"
-            @@_sessions[_sid] = Session.new(_sid)
+            logger.info "Connection opened [#{sid}]"
+            @@_sessions[sid] = Session.new(sid: sid)
             _ws.onclose {
-              @@_sessions.delete(_sid)
-              logger.info "Connection closed [#{_sid}]"
+              @@_sessions.delete(sid)
+              logger.info "Connection closed [#{sid}]"
             }
-            _ws.onmessage { |_msg|
-              _session = get_session(_sid)
+            _ws.onmessage { |msg|
+              _session = get_session(sid)
               if ENV['RUBY_ENV'] == 'development'
-                logger.info "Received message: " + _msg.inspect
+                logger.info "Received message: " + msg.inspect
               end
-              if valid_json?(_msg)
-                _parsed_message = JSON.parse(_msg)
-                _r = interpret_message(_parsed_message, _sid)
-                if _r != false
-                  if _r.class == Hash
-                    _ws.send(JSON.generate(_r))
-                  elsif _r.class == Array
-                    _r.each do |_rm|
-                      _ws.send(JSON.generate(_rm))
+              if valid_json?(msg)
+                parsed_message = JSON.parse(msg)
+                response = interpret_message(msg: parsed_message, sid: sid)
+                if response != false
+                  if response.class == Hash
+                    _ws.send(JSON.generate(response))
+                  elsif response.class == Array
+                    response.each do |response_message|
+                      _ws.send(JSON.generate(response_message))
                     end
                   end
                 end
@@ -188,11 +200,15 @@ class Server
             }
           }
         end
-      elsif @config['rest']
+        logger.info 'Server initialized'
+      elsif @config['server'] == 'rest'
+        logger.info 'Initializing REST server'
+        
+        logger.info 'Server initialized'
       else
         logger.error 'No server defined'
+        EM.stop
       end
-      logger.info 'Server initialized'
     end
   end
 end
