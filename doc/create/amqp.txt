@@ -1,0 +1,3 @@
+AMQP when enabled allows cross-server event-based communication.
+When the AMQP environment variable is set, Grace servers will establish an AMQP connection automatically and enable remote action calls.
+You can use "grace add amqp" to add an internal AMQP server or provide an external one

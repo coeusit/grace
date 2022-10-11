@@ -1,0 +1,5 @@
+command CREATE
+
+ex: grace create <project-name>
+
+Creates a new Grace project. The first argument will be used as the directory name.
