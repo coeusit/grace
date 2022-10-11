@@ -120,5 +120,7 @@ else
         end
       end
     end
+    @logger.info "Downloading Grace framework.. #{system("sh ./#{project_name}/update-grace.sh").inspect}"
+    @logger.info 'Creation complete'
   end
 end
