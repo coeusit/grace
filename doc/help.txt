@@ -1,0 +1,6 @@
+Displays documentation for commands and framework concepts.
+
+  Ex: help create (documentation for create command)
+  Ex: help create amqp (documentation for amqp section of create command)
+
+Use "help topics" to get a full list of help topics

@@ -1,0 +1,1 @@
+Enabling SMTP will set up a separate SMTP relay in your stack
