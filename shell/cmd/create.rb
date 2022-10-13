@@ -33,8 +33,8 @@ else
     if smtp
       if smtp_conf[:relay] != nil
         f = File.open("./#{project_name}/docker-conf/.env.smtp", 'w')
-        smtp_conf[:relay].each do |l,v|
-          f.puts
+        smtp_conf[:relay].each do |k,v|
+          f.puts "#{k}=\"#{v}\""
         end
       end
     end
