@@ -116,7 +116,7 @@ else
       File.open("./#{project_name}/#{dc_fname}", 'w') { |f| f.write(dc_y[_env].to_yaml) }
       File.open("./#{project_name}/docker-conf/.env.#{_env.to_s}", 'w') do |f|
         env_vars.each do |k,v|
-          f.puts "#{k}=#{v}"
+          f.puts "#{k}=\"#{v}\""
         end
       end
     end
