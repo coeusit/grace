@@ -10,13 +10,15 @@ class Session
     set_admin(is_admin)
     set_user_id(user_id)
     set_auth(authenticated)
+    set_otp_passed(otp_passed)
+    set_otp_enabled(otp_enabled)
     set_key(key)
   end
   def set_admin(_a)
     @_redis.set("session/#{@_uuid}/admin", _a, ex: session_expiration)
   end
   def is_admin
-    return @_redis.get("session/#{@_uuid}/admin")
+    return @_redis.get("session/#{@_uuid}/admin") && is_authenticated
   end
   def set_user_id(_k)
     @_redis.set("session/#{@_uuid}/user_id", _k, ex: session_expiration)
@@ -24,10 +26,27 @@ class Session
   def user_id
     return @_redis.get("session/#{@_uuid}/user_id")
   end
+  def otp_passed
+    return @_redis.get("session/#{@_uuid}/otp_passed")
+  end
+  def set_otp_passed(_otp_passed)
+    @_redis.set("session/#{@_uuid}/otp_passed", _k, ex: session_expiration)
+  end
+  def otp_enabled
+    return @_redis.get("session/#{@_uuid}/otp_enabled")
+  end
+  def set_otp_enabled(_opt_enabled)
+    @_redis.set("session/#{@_uuid}/otp_enabled", _k, ex: session_expiration)
+  end
   def set_auth(_auth_status)
     @_redis.set("session/#{@_uuid}/authenticated", _auth_status, ex: session_expiration)
   end
+  def is_authenticated
+    # Basic login auth reconciled with OTP security
+    return otp_enabled ? otp_passed && authenticated : authenticated
+  end
   def authenticated
+    # Basic login auth
     return @_redis.get("session/#{@_uuid}/authenticated")
   end
   def set_uuid(_uuid)
@@ -49,6 +68,8 @@ class Session
     @_redis.del("session/#{@_uuid}/user_id")
     @_redis.del("session/#{@_uuid}/admin")
     @_redis.del("session/#{@_uuid}/key")
+    @_redis.del("session/#{@_uuid}/otp_passed")
+    @_redis.del("session/#{@_uuid}/otp_enabled")
     @_redis.del("session/#{@_uuid}/authenticated")
   end
   def session_expiration
@@ -75,5 +96,6 @@ class Session
   def deauth
     set_auth(false)
     set_user_id(nil)
+    set_otp_passed(false)
   end
 end
