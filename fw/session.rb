@@ -96,6 +96,7 @@ class Session
   def deauth
     set_auth(false)
     set_user_id(nil)
+    set_otp_enabled(false)
     set_otp_passed(false)
   end
 end
