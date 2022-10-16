@@ -15,7 +15,7 @@ class Session
     set_key(key)
   end
   def set_admin(_a)
-    @_redis.set("session/#{@_uuid}/admin", _a, ex: session_expiration)
+    @_redis.set("session/#{@_uuid}/admin", _a.to_s, ex: session_expiration)
   end
   def is_admin
     return @_redis.get("session/#{@_uuid}/admin") == 'true' && is_authenticated
@@ -30,16 +30,16 @@ class Session
     return @_redis.get("session/#{@_uuid}/otp_passed") == 'true'
   end
   def set_otp_passed(_k)
-    @_redis.set("session/#{@_uuid}/otp_passed", _k, ex: session_expiration)
+    @_redis.set("session/#{@_uuid}/otp_passed", _k.to_s, ex: session_expiration)
   end
   def otp_enabled
     return @_redis.get("session/#{@_uuid}/otp_enabled") == 'true'
   end
   def set_otp_enabled(_k)
-    @_redis.set("session/#{@_uuid}/otp_enabled", _k, ex: session_expiration)
+    @_redis.set("session/#{@_uuid}/otp_enabled", _k.to_s, ex: session_expiration)
   end
   def set_auth(_auth_status)
-    @_redis.set("session/#{@_uuid}/authenticated", _auth_status, ex: session_expiration)
+    @_redis.set("session/#{@_uuid}/authenticated", _auth_status.to_s, ex: session_expiration)
   end
   def is_authenticated
     # Basic login auth reconciled with OTP security
