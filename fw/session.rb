@@ -29,13 +29,13 @@ class Session
   def otp_passed
     return @_redis.get("session/#{@_uuid}/otp_passed")
   end
-  def set_otp_passed(_otp_passed)
+  def set_otp_passed(_k)
     @_redis.set("session/#{@_uuid}/otp_passed", _k, ex: session_expiration)
   end
   def otp_enabled
     return @_redis.get("session/#{@_uuid}/otp_enabled")
   end
-  def set_otp_enabled(_opt_enabled)
+  def set_otp_enabled(_k)
     @_redis.set("session/#{@_uuid}/otp_enabled", _k, ex: session_expiration)
   end
   def set_auth(_auth_status)
