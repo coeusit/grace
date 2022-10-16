@@ -49,6 +49,7 @@ else
         'MYSQL_DATABASE' => "#{project_name}_#{_env.to_s}",
         'MYSQL_USER' => project_name,
         'MYSQL_PASSWORD' => project_name,
+        'OTP_ISSUER' => project_name,
         'REDIS_HOST' => 'redis://redis:6379/0',
         'PWD_SALT' => Faker::Alphanumeric.alphanumeric(number: 128)
       }
