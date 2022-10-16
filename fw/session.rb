@@ -18,7 +18,7 @@ class Session
     @_redis.set("session/#{@_uuid}/admin", _a, ex: session_expiration)
   end
   def is_admin
-    return @_redis.get("session/#{@_uuid}/admin") && is_authenticated
+    return @_redis.get("session/#{@_uuid}/admin") == 'true' && is_authenticated
   end
   def set_user_id(_k)
     @_redis.set("session/#{@_uuid}/user_id", _k, ex: session_expiration)
@@ -27,13 +27,13 @@ class Session
     return @_redis.get("session/#{@_uuid}/user_id")
   end
   def otp_passed
-    return @_redis.get("session/#{@_uuid}/otp_passed")
+    return @_redis.get("session/#{@_uuid}/otp_passed") == 'true'
   end
   def set_otp_passed(_k)
     @_redis.set("session/#{@_uuid}/otp_passed", _k, ex: session_expiration)
   end
   def otp_enabled
-    return @_redis.get("session/#{@_uuid}/otp_enabled")
+    return @_redis.get("session/#{@_uuid}/otp_enabled") == 'true'
   end
   def set_otp_enabled(_k)
     @_redis.set("session/#{@_uuid}/otp_enabled", _k, ex: session_expiration)
@@ -47,7 +47,7 @@ class Session
   end
   def authenticated
     # Basic login auth
-    return @_redis.get("session/#{@_uuid}/authenticated")
+    return @_redis.get("session/#{@_uuid}/authenticated") == 'true'
   end
   def set_uuid(_uuid)
     @_uuid = _uuid
