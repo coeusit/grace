@@ -71,7 +71,7 @@ if enable_utility
 end
 
 settings = {}
-settings['server'] = service_modes.joins(',')
+settings['server'] = service_modes.join(',')
 settings['seed_admin_email'] = seed_admin_email
 settings['seed_admin_pwd_dev'] = seed_admin_pwd_dev
 settings['seed_admin_pwd_prod'] = seed_admin_pwd_prod
