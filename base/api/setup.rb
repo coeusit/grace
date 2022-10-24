@@ -70,13 +70,12 @@ if enable_utility
   @logger.info "Installed utility"
 end
 
-settings = {
-  'server': service_modes.join(','),
-  'seed_admin_email': seed_admin_email,
-  'seed_admin_pwd_dev': seed_admin_pwd_dev,
-  'seed_admin_pwd_prod': seed_admin_pwd_prod,
-  'seed_dev_country': seed_dev_country
-}
+settings = {}
+settings['server'] = service_modes.joins(',')
+settings['seed_admin_email'] = seed_admin_email
+settings['seed_admin_pwd_dev'] = seed_admin_pwd_dev
+settings['seed_admin_pwd_prod'] = seed_admin_pwd_prod
+settings['seed_dev_country'] = seed_dev_country
 if enable_gstorage
   settings['gcloud_project_name'] = gcloud_storage_name
   settings['gcloud_project_bucket'] = gcloud_storage_bucket
