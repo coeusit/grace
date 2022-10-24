@@ -56,8 +56,36 @@ class Server
   def get_session(_sid)
     return @@_sessions[_sid]
   end
+  def parse_route(_route)
+    action = nil
+    route_parts = _route.split('/')
+    @_actions.each do |k,a|
+      params = []
+      k_parts = k.split('/')
+      if k_parts.length == route_parts.length
+        disqualified = false
+        for i in 0..(k_parts.length-1)
+          kp = k_parts[i]
+          rp = route_parts[i]
+          if kp.slice!(0) == ':'
+            params[kp] = rp
+          elsif rp != k_parts[i]
+            disqualified = true
+          end
+        end
+        if !disqualified
+          action = {
+            :action => a,
+            :params => params
+          }
+        end
+      end
+    end
+    return action
+  end
   def interpret_message(opt = {})
     # _msg, _sid
+    logger = Logger.new(STDOUT)
     msg = opt.has_key?(:msg) ? opt[:msg] : {}
     session = nil
     if opt.has_key?(:sid)
@@ -78,17 +106,20 @@ class Server
     @_plugins.each {|k,v|
       _opt[k] = eval(v)
     }
-    if @_actions.has_key?(msg['action'])
-      action = @_actions[msg['action']][:class].new(_opt)
+    route = parse_route(msg['action'])
+    if route != nil
+      _opt[:params].merge!(route[:params])
+      action = route[:action][:class].new(_opt)
       if ENV['RUBY_ENV'] == 'development'
-        logger = Logger.new(STDOUT)
         logger.info "Calling action: #{msg['action']}"
       end
-      if @_actions[msg['action']][:content] == nil
+      if route[:action][:content] == nil
         response = action.execute
       else
-        response = action.execute(@_actions[msg['action']][:content])
+        response = action.execute(route[:action][:content])
       end
+    else
+      logger.error 'Unknown action called'
     end
     return response
   end

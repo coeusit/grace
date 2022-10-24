@@ -1,0 +1,23 @@
+namespace :db do
+  desc "Run migrations"
+  task :migrate, [:version] do |t, args|
+    require "sequel/core"
+    Sequel.extension :migration
+    version = args[:version].to_i if args[:version]
+    puts "Polling DB"
+    _seeded = false
+    while _seeded == false
+      begin
+        Sequel.connect(:adapter => 'mysql2', :host => ENV.fetch("MYSQL_HOST"), :database => ENV.fetch("MYSQL_DATABASE"), :user => ENV.fetch("MYSQL_USER"), :password => ENV.fetch("MYSQL_PASSWORD")) do |db|
+          Sequel::Migrator.run(db, "lib/common/db/migrations", target: version)
+        end
+      rescue Sequel::DatabaseConnectionError
+        puts "Database unavailable, retrying"
+        sleep 5
+      else
+        puts "Database migrate complete"
+        _seeded = true
+      end
+    end
+  end
+end

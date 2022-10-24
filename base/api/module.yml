@@ -1,0 +1,2 @@
+name: API base
+description: Generates a Ruby based API server. Supports optional Websocket and REST protocols, channel encryption, sessions, and/or a CMS.

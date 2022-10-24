@@ -1,0 +1,32 @@
+source 'https://rubygems.org'
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
+
+ruby '2.7.2'
+
+gem "sinatra", "~> 2.1"
+
+gem "sequel", "~> 5.51"
+
+gem "redis", "~> 4.5"
+
+gem "amqp", "~> 1.8"
+
+gem "thin", "~> 1.8"
+
+gem "linguistics", "~> 2.1"
+
+gem "mysql2", "~> 0.5.3"
+
+gem "faker", "~> 2.19"
+
+gem "bcrypt", "~> 3.1"
+
+gem "rotp", "~> 6.2"
+
+gem "google-cloud-storage", "~> 1.36"
+
+gem "em-websocket", "~> 0.5.3"
+
+gem "geocoder", "~> 1.8"
+
+gem "filewatcher", "~> 2.0"
