@@ -43,24 +43,24 @@ if seed_dev_country == ''
 end
 
 Dir.mkdir("./#{@s_name}")
-FileUtils.cp_r("#{tmpl_path}/base","./#{@s_name}")
+FileUtils.cp_r("#{tmpl_path}/base/*","./#{@s_name}")
 if enable_resource
-  FileUtils.cp_r("#{tmpl_path}/resource","./#{@s_name}")
+  FileUtils.cp_r("#{tmpl_path}/resource/*","./#{@s_name}")
 end
 if enable_auth
-  FileUtils.cp_r("#{tmpl_path}/authentication","./#{@s_name}")
+  FileUtils.cp_r("#{tmpl_path}/authentication/*","./#{@s_name}")
 end
 if enable_chat
-  FileUtils.cp_r("#{tmpl_path}/chat","./#{@s_name}")
+  FileUtils.cp_r("#{tmpl_path}/chat/*","./#{@s_name}")
 end
 if enable_cms
-  FileUtils.cp_r("#{tmpl_path}/cms","./#{@s_name}")
+  FileUtils.cp_r("#{tmpl_path}/cms/*","./#{@s_name}")
 end
 if enable_otp
-  FileUtils.cp_r("#{tmpl_path}/otp","./#{@s_name}")
+  FileUtils.cp_r("#{tmpl_path}/otp/*","./#{@s_name}")
 end
 if enable_utility
-  FileUtils.cp_r("#{tmpl_path}/utility","./#{@s_name}")
+  FileUtils.cp_r("#{tmpl_path}/utility/*","./#{@s_name}")
 end
 
 settings = {
@@ -75,4 +75,4 @@ if enable_gstorage
   settings[:gcloud_project_bucket] = gcloud_storage_bucket
   settings[:gcloud_credentials] = './lib/common/config/gcloud.json'
 end
-File.open("./#{@s_name}/config/grace.yml", 'w') { |f| f.write(settings.to_yaml) }
+File.open("./#{@s_name}/src/config/grace.yml", 'w') { |f| f.write(settings.to_yaml) }

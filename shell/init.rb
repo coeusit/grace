@@ -21,6 +21,7 @@ def require_project_root
 end
 
 if cmd != nil
+  puts "CMD::#{cmd}"
   if File.file?("#{$basepath}/shell/cmd/#{cmd}.rb")
     require "#{$basepath}/shell/cmd/#{cmd}.rb"
   end
