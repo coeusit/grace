@@ -37,7 +37,7 @@ enable_utility = ask('Add utility functions? [Y/n] ').downcase == 'n' ? false : 
 seed_admin_email = ask('Admin email? ')
 seed_admin_pwd_dev = ask('Admin password in development? ')
 seed_admin_pwd_prod = ask('Initial admin pasword in production? ')
-seed_dev_country = ask('Country for development? [US]')
+seed_dev_country = ask('Country for development? [US] ').upcase
 if seed_dev_country == ''
   seed_dev_country = 'US'
 end
@@ -71,16 +71,16 @@ if enable_utility
 end
 
 settings = {
-  :server => service_modes.join(','),
-  :seed_admin_email => seed_admin_email,
-  :seed_admin_pwd_dev => seed_admin_pwd_dev,
-  :seed_admin_pwd_prod => seed_admin_pwd_prod,
-  :seed_dev_country => seed_dev_country
+  'server': service_modes.join(','),
+  'seed_admin_email': seed_admin_email,
+  'seed_admin_pwd_dev': seed_admin_pwd_dev,
+  'seed_admin_pwd_prod': seed_admin_pwd_prod,
+  'seed_dev_country': seed_dev_country
 }
 if enable_gstorage
-  settings[:gcloud_project_name] = gcloud_storage_name
-  settings[:gcloud_project_bucket] = gcloud_storage_bucket
-  settings[:gcloud_credentials] = './lib/common/config/gcloud.json'
+  settings['gcloud_project_name'] = gcloud_storage_name
+  settings['gcloud_project_bucket'] = gcloud_storage_bucket
+  settings['gcloud_credentials'] = './lib/common/config/gcloud.json'
 end
 File.open("./#{@s_name}/src/config/grace.yml", 'w') { |f| f.write(settings.to_yaml) }
 @logger.info "Installed config"
