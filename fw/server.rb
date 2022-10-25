@@ -176,7 +176,7 @@ class Server
       @logger.info 'Initializing EM channel'
       $ch = EM::Channel.new
       if @config['server'] == 'websocket'
-        logger.info 'Initializing websocket server'
+        @logger.info 'Initializing websocket server'
         if ENV['RUBY_ENV'] == 'development' || !File.file?('./ssl/privkey.pem') || !File.file?('./ssl/privkey.pem')
           emws_opt = {
             :host => '0.0.0.0',
