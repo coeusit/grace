@@ -145,6 +145,6 @@ end
 if enable_rest
   dc[@s_name]['ports'] << "#{rest_port}:81"
 end
-dc['services'].merge!(dc)
+dc_root['services'].merge!(dc)
 File.open("./docker-compose.development.yml", 'w') { |f| f.write(dc_root.to_yaml) }
 @logger.info "Updated development docker-compose file"
