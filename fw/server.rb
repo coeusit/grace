@@ -5,9 +5,9 @@ require 'base64'
 require 'em-websocket'
 require 'google/cloud/storage'
 require 'rotp'
-require 'logger'
 require 'filewatcher'
 require 'thin'
+require './lib/fw/mlog.rb'
 require './lib/fw/session.rb'
 
 def valid_json?(json)
@@ -21,9 +21,9 @@ class Server
   @_amqp_exchange = nil
   @config = {}
   @@_sessions = {}
+  @logger = MLog.new
   def reload_actions
-    logger = Logger.new(STDOUT)
-    logger.info 'Loading actions'
+    @logger.info 'Loading actions'
     clear_actions
     Dir.glob('./lib/common/init/**/*.rb').each do |file|
       eval(File.open(file).read)
@@ -33,9 +33,8 @@ class Server
     end
   end
   def load_schema
-    logger = Logger.new(STDOUT)
     @_schemas = {}
-    logger.info 'Loading schema'
+    @logger.info 'Loading schema'
     Dir.glob('./lib/common/schema/**/*.yml').each do |file|
       @_schemas[file[10..-4]] = YAML.load_file(file)
     end
@@ -85,7 +84,6 @@ class Server
   end
   def interpret_message(opt = {})
     # _msg, _sid
-    logger = Logger.new(STDOUT)
     msg = opt.has_key?(:msg) ? opt[:msg] : {}
     session = nil
     if opt.has_key?(:sid)
@@ -111,7 +109,7 @@ class Server
       _opt[:params].merge!(route[:params])
       action = route[:action][:class].new(_opt)
       if ENV['RUBY_ENV'] == 'development'
-        logger.info "Calling action: #{msg['action']}"
+        @logger.info "Calling action: #{msg['action']}"
       end
       if route[:action][:content] == nil
         response = action.execute
@@ -119,7 +117,7 @@ class Server
         response = action.execute(route[:action][:content])
       end
     else
-      logger.error 'Unknown action called'
+      @logger.error 'Unknown action called'
     end
     return response
   end
@@ -136,8 +134,7 @@ class Server
   end
   def init_amqp
     if ENV.has_key?('AMQP_HOST')
-      logger = Logger.new(STDOUT)
-      logger.info 'Subscribing to AMQP'
+      @logger.info 'Subscribing to AMQP'
       _amqp_connection = AMQP.connect(:host => ENV['AMQP_HOST'])
       _amqp_ch = AMQP::Channel.new(_amqp_connection)
       _amqp_queue = _amqp_ch.queue('control.api', :auto_delete => true)
@@ -163,21 +160,19 @@ class Server
     end
   end
   def load_config
-    logger = Logger.new(STDOUT)
-    logger.info "Loading config"
+    @logger.info "Loading config"
     @config = YAML.load_file('./config/grace.yml')
   end
   def run(_server_options)
     EM.run do
-      logger = Logger.new(STDOUT)
-      logger.info "Initializing Grace server in #{ENV['RUBY_ENV']} mode"
+      @logger.info "Initializing Grace server in #{ENV['RUBY_ENV']} mode"
       load_config
       init_amqp
       load_schema
       start_filewatcher
       reload_actions
 
-      logger.info 'Initializing EM channel'
+      @logger.info 'Initializing EM channel'
       $ch = EM::Channel.new
       if @config['server'] == 'websocket'
         logger.info 'Initializing websocket server'
@@ -199,7 +194,6 @@ class Server
         end
         EM::WebSocket.start(emws_opt) do |_ws|
           _ws.onopen { |handshake|
-            logger = Logger.new(STDOUT)
             sid = $ch.subscribe do |_cm|
               _session = get_session(sid)
               if _session != nil && _session.authenticated
@@ -208,16 +202,16 @@ class Server
                 end
               end
             end
-            logger.info "Connection opened [#{sid}]"
+            @logger.info "Connection opened [#{sid}]"
             @@_sessions[sid] = Session.new(sid: sid)
             _ws.onclose {
               @@_sessions.delete(sid)
-              logger.info "Connection closed [#{sid}]"
+              @logger.info "Connection closed [#{sid}]"
             }
             _ws.onmessage { |msg|
               _session = get_session(sid)
               if ENV['RUBY_ENV'] == 'development'
-                logger.info "Received message: " + msg.inspect
+                @logger.info "Received message: " + msg.inspect
               end
               if valid_json?(msg)
                 parsed_message = JSON.parse(msg)
@@ -235,9 +229,9 @@ class Server
             }
           }
         end
-        logger.info 'Server initialized'
+        @logger.info 'Server initialized'
       elsif @config['server'] == 'rest'
-        logger.info 'Initializing REST server'
+        @logger.info 'Initializing REST server'
         dispatch = Rack::Builder.app do
           map '/' do
             run HttpSrv.new
@@ -250,9 +244,9 @@ class Server
           Host:   '0.0.0.0',
           Port:   80
         })
-        logger.info 'Server initialized'
+        @logger.info 'Server initialized'
       else
-        logger.error 'No server defined'
+        @logger.error 'No server defined'
         EM.stop
       end
     end

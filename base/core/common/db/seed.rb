@@ -1,11 +1,9 @@
-require 'logger'
 require 'yaml'
 require 'json'
 require './lib/common/db.rb'
 require 'faker'
 @config = YAML.load_file('./config/grace.yml')
 
-logger = Logger.new(STDOUT)
 langs = {}
 countries = {}
 
@@ -17,7 +15,7 @@ if Language.all.count == 0
       is_fallback: c_vals['is_fallback'],
       code: c_code.downcase
     )
-    logger.info "Generated language #{c_vals['name']}"
+    @logger.info "Generated language #{c_vals['name']}"
   end
 
   j_country = JSON.parse(File.read('./lib/common/db/seed/geo_data.json'))
@@ -28,20 +26,20 @@ if Language.all.count == 0
         language_id: langs[country['lang'].downcase].id,
         code: country_code
       )
-      logger.info "Generated country #{country['name']}"
+      @logger.info "Generated country #{country['name']}"
       if country['regions'] != nil
         country['regions'].each do |region_name, cities|
           region = Region.create(
             name: region_name,
             country_id: countries[country_code.downcase].id
           )
-          logger.info "Generated region #{region.name}"
+          @logger.info "Generated region #{region.name}"
           cities.each do |city|
             _c = City.create(
               name: city,
               region_id: region.id
             )
-            logger.info "Generated city #{_c.name}"
+            @logger.info "Generated city #{_c.name}"
           end
         end
       end

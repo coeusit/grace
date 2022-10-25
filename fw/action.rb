@@ -1,3 +1,4 @@
+require './lib/fw/mlog.rb'
 class Action
   @response = false
   def initialize(_opt = {})
@@ -10,7 +11,7 @@ class Action
       eval(_code)
     rescue Exception => e
       if ENV['RUBY_ENV'] == 'development'
-        logger = Logger.new(STDOUT)
+        logger = Mlog.new
         logger.error "Failure executing action: #{e}"
         @response = {
           :action => 'server_error',

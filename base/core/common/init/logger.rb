@@ -1,1 +1,1 @@
-add_plugin(:logger, 'Logger.new(STDOUT)')
+add_plugin(:logger, 'MLog.new')
