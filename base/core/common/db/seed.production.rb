@@ -1,3 +1,4 @@
+logger = Logger.new(STDOUT)
 User.create(
   :password => @config['seed_admin_pwd_prod'],
   :enabled => true,
