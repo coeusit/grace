@@ -1,22 +1,49 @@
+require 'logger'
+
+@logger = Logger.new(STDOUT)
+
 namespace :db do
   desc "Run migrations"
   task :migrate, [:version] do |t, args|
     require "sequel/core"
     Sequel.extension :migration
     version = args[:version].to_i if args[:version]
-    puts "Polling DB"
-    _seeded = false
-    while _seeded == false
+    @logger.info "Polling DB"
+    _done = false
+    while _done == false
       begin
         Sequel.connect(:adapter => 'mysql2', :host => ENV.fetch("MYSQL_HOST"), :database => ENV.fetch("MYSQL_DATABASE"), :user => ENV.fetch("MYSQL_USER"), :password => ENV.fetch("MYSQL_PASSWORD")) do |db|
           Sequel::Migrator.run(db, "lib/common/db/migrations", target: version)
         end
       rescue Sequel::DatabaseConnectionError
-        puts "Database unavailable, retrying"
+        @logger.info "Database unavailable, retrying in 5 seconds"
         sleep 5
       else
-        puts "Database migrate complete"
-        _seeded = true
+        @logger.info "Database migrate complete"
+        _done = true
+      end
+    end
+  end
+  desc "Seed DB"
+  task :seed, [:version] do |t, args|
+    require "sequel/core"
+    Sequel.extension :migration
+    version = args[:version].to_i if args[:version]
+    @logger.info "Polling DB"
+    _done = false
+    while _done == false
+      begin
+        Sequel.connect(:adapter => 'mysql2', :host => ENV.fetch("MYSQL_HOST"), :database => ENV.fetch("MYSQL_DATABASE"), :user => ENV.fetch("MYSQL_USER"), :password => ENV.fetch("MYSQL_PASSWORD")) do |db|
+          if File.exist?('./lib/common/db/seed.rb')
+            require './lib/common/db/seed.rb'
+          end
+        end
+      rescue Sequel::DatabaseConnectionError
+        @logger.info "Database unavailable, retrying"
+        sleep 5
+      else
+        @logger.info "Database migrate complete"
+        _done = true
       end
     end
   end
