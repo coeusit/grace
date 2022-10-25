@@ -85,60 +85,66 @@ end
 File.open("./#{@s_name}/src/config/grace.yml", 'w') { |f| f.write(settings.to_yaml) }
 @logger.info "Installed config"
 
-@dc = YAML.load_file("./docker-compose.yml")
-@dc[@s_name] = {}
-@dc[@s_name]['hostname'] = @s_name
-@dc[@s_name]['env_file'] = './docker-conf/.env.production'
-@dc[@s_name]['restart'] = 'always'
-@dc[@s_name]['build'] = {}
-@dc[@s_name]['build']['context'] = '.'
-@dc[@s_name]['build']['dockerfile'] = "./#{@s_name}/Dockerfile"
-@dc[@s_name]['depends_on'] = ['db']
-@dc[@s_name]['ports'] = []
+dc_root = YAML.load_file("./docker-compose.yml")
+dc = {}
+dc[@s_name] = {}
+dc[@s_name]['hostname'] = @s_name
+dc[@s_name]['env_file'] = './docker-conf/.env.production'
+dc[@s_name]['restart'] = 'always'
+dc[@s_name]['build'] = {}
+dc[@s_name]['build']['context'] = '.'
+dc[@s_name]['build']['dockerfile'] = "./#{@s_name}/Dockerfile"
+dc[@s_name]['depends_on'] = ['db']
+dc[@s_name]['ports'] = []
 if enable_ws
-  @dc[@s_name]['ports'] << "#{ws_port}:80"
+  dc[@s_name]['ports'] << "#{ws_port}:80"
 end
 if enable_rest
-  @dc[@s_name]['ports'] << "#{rest_port}:81"
+  dc[@s_name]['ports'] << "#{rest_port}:81"
 end
-File.open("./docker-compose.yml", 'w') { |f| f.write(@dc.to_yaml) }
+dc_root['services'].merge!(dc)
+File.open("./docker-compose.yml", 'w') { |f| f.write(dc_root.to_yaml) }
 @logger.info "Updated production docker-compose file"
 
-@dc = YAML.load_file("./docker-compose.staging.yml")
-@dc[@s_name] = {}
-@dc[@s_name]['hostname'] = @s_name
-@dc[@s_name]['env_file'] = './docker-conf/.env.staging'
-@dc[@s_name]['restart'] = 'always'
-@dc[@s_name]['build'] = {}
-@dc[@s_name]['build']['context'] = '.'
-@dc[@s_name]['build']['dockerfile'] = "./#{@s_name}/Dockerfile"
-@dc[@s_name]['depends_on'] = ['db']
-@dc[@s_name]['ports'] = []
+dc_root = YAML.load_file("./docker-compose.staging.yml")
+dc = {}
+dc[@s_name] = {}
+dc[@s_name]['hostname'] = @s_name
+dc[@s_name]['env_file'] = './docker-conf/.env.staging'
+dc[@s_name]['restart'] = 'always'
+dc[@s_name]['build'] = {}
+dc[@s_name]['build']['context'] = '.'
+dc[@s_name]['build']['dockerfile'] = "./#{@s_name}/Dockerfile"
+dc[@s_name]['depends_on'] = ['db']
+dc[@s_name]['ports'] = []
 if enable_ws
-  @dc[@s_name]['ports'] << "#{ws_port}:80"
+  dc[@s_name]['ports'] << "#{ws_port}:80"
 end
 if enable_rest
-  @dc[@s_name]['ports'] << "#{rest_port}:81"
+  dc[@s_name]['ports'] << "#{rest_port}:81"
 end
-File.open("./docker-compose.staging.yml", 'w') { |f| f.write(@dc.to_yaml) }
+dc_root['services'].merge!(dc)
+File.open("./docker-compose.staging.yml", 'w') { |f| f.write(dc_root.to_yaml) }
 @logger.info "Updated staging docker-compose file"
 
-@dc = YAML.load_file("./docker-compose.development.yml")
-@dc[@s_name] = {}
-@dc[@s_name]['hostname'] = @s_name
-@dc[@s_name]['env_file'] = './docker-conf/.env.development'
-@dc[@s_name]['restart'] = 'no'
-@dc[@s_name]['build'] = {}
-@dc[@s_name]['build']['context'] = '.'
-@dc[@s_name]['build']['dockerfile'] = "./#{@s_name}/Dockerfile"
-@dc[@s_name]['depends_on'] = ['db']
-@dc[@s_name]['volumes'] = ["./#{@s_name}/src:/app",'./common:/app/lib/common','./grace/fw:/app/lib/fw']
-@dc[@s_name]['ports'] = []
+dc_root = YAML.load_file("./docker-compose.development.yml")
+dc = {}
+dc[@s_name] = {}
+dc[@s_name]['hostname'] = @s_name
+dc[@s_name]['env_file'] = './docker-conf/.env.development'
+dc[@s_name]['restart'] = 'no'
+dc[@s_name]['build'] = {}
+dc[@s_name]['build']['context'] = '.'
+dc[@s_name]['build']['dockerfile'] = "./#{@s_name}/Dockerfile"
+dc[@s_name]['depends_on'] = ['db']
+dc[@s_name]['volumes'] = ["./#{@s_name}/src:/app",'./common:/app/lib/common','./grace/fw:/app/lib/fw']
+dc[@s_name]['ports'] = []
 if enable_ws
-  @dc[@s_name]['ports'] << "#{ws_port}:80"
+  dc[@s_name]['ports'] << "#{ws_port}:80"
 end
 if enable_rest
-  @dc[@s_name]['ports'] << "#{rest_port}:81"
+  dc[@s_name]['ports'] << "#{rest_port}:81"
 end
-File.open("./docker-compose.development.yml", 'w') { |f| f.write(@dc.to_yaml) }
+dc['services'].merge!(dc)
+File.open("./docker-compose.development.yml", 'w') { |f| f.write(dc_root.to_yaml) }
 @logger.info "Updated development docker-compose file"
