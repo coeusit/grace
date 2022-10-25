@@ -165,6 +165,7 @@ class Server
   end
   def run(_server_options)
     EM.run do
+      @logger = MLog.new
       @logger.info "Initializing Grace server in #{ENV['RUBY_ENV']} mode"
       load_config
       init_amqp
