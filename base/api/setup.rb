@@ -1,9 +1,10 @@
 tmpl_path = "#{File.dirname(__FILE__)}/files"
+default_ws_port = 42001
 default_rest_port = 80
 service_modes = []
 if (enable_ws = ask('Enable Websocket? [Y/n] ').downcase) != 'n'
-  if (ws_port = ask('Websocket port? (80) ').to_i) == 0
-    ws_port = 80
+  if (ws_port = ask("Websocket port? (#{default_ws_port}) ").to_i) == 0
+    ws_port = default_ws_port
   end
   if ws_port == 80
     default_rest_port = 81
@@ -83,3 +84,61 @@ if enable_gstorage
 end
 File.open("./#{@s_name}/src/config/grace.yml", 'w') { |f| f.write(settings.to_yaml) }
 @logger.info "Installed config"
+
+@dc = YAML.load_file("./docker-compose.yml")
+@dc[@s_name] = {}
+@dc[@s_name]['hostname'] = @s_name
+@dc[@s_name]['env_file'] = './docker-conf/.env.production'
+@dc[@s_name]['restart'] = 'always'
+@dc[@s_name]['build'] = {}
+@dc[@s_name]['build']['context'] = '.'
+@dc[@s_name]['build']['dockerfile'] = "./#{@s_name}/Dockerfile"
+@dc[@s_name]['depends_on'] = ['db']
+@dc[@s_name]['ports'] = []
+if enable_ws
+  @dc[@s_name]['ports'] << "#{ws_port}:80"
+end
+if enable_rest
+  @dc[@s_name]['ports'] << "#{rest_port}:81"
+end
+File.open("./docker-compose.yml", 'w') { |f| f.write(@dc.to_yaml) }
+@logger.info "Updated production docker-compose file"
+
+@dc = YAML.load_file("./docker-compose.staging.yml")
+@dc[@s_name] = {}
+@dc[@s_name]['hostname'] = @s_name
+@dc[@s_name]['env_file'] = './docker-conf/.env.staging'
+@dc[@s_name]['restart'] = 'always'
+@dc[@s_name]['build'] = {}
+@dc[@s_name]['build']['context'] = '.'
+@dc[@s_name]['build']['dockerfile'] = "./#{@s_name}/Dockerfile"
+@dc[@s_name]['depends_on'] = ['db']
+@dc[@s_name]['ports'] = []
+if enable_ws
+  @dc[@s_name]['ports'] << "#{ws_port}:80"
+end
+if enable_rest
+  @dc[@s_name]['ports'] << "#{rest_port}:81"
+end
+File.open("./docker-compose.staging.yml", 'w') { |f| f.write(@dc.to_yaml) }
+@logger.info "Updated staging docker-compose file"
+
+@dc = YAML.load_file("./docker-compose.development.yml")
+@dc[@s_name] = {}
+@dc[@s_name]['hostname'] = @s_name
+@dc[@s_name]['env_file'] = './docker-conf/.env.development'
+@dc[@s_name]['restart'] = 'no'
+@dc[@s_name]['build'] = {}
+@dc[@s_name]['build']['context'] = '.'
+@dc[@s_name]['build']['dockerfile'] = "./#{@s_name}/Dockerfile"
+@dc[@s_name]['depends_on'] = ['db']
+@dc[@s_name]['volumes'] = ["./#{@s_name}/src:/app",'./common:/app/lib/common','./grace/fw:/app/lib/fw']
+@dc[@s_name]['ports'] = []
+if enable_ws
+  @dc[@s_name]['ports'] << "#{ws_port}:80"
+end
+if enable_rest
+  @dc[@s_name]['ports'] << "#{rest_port}:81"
+end
+File.open("./docker-compose.development.yml", 'w') { |f| f.write(@dc.to_yaml) }
+@logger.info "Updated development docker-compose file"
