@@ -1,4 +1,4 @@
-require logger
+require 'logger'
 class MLog
   def info(msg)
     Logger.new(STDOUT).info msg
