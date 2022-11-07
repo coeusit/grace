@@ -22,12 +22,12 @@ if conn_method == 'websocket'
     'vue3-highlightjs'
   ]
   tmpl_path = "#{File.dirname(__FILE__)}/files"
-  yarn 
+  yarn
   system("yarn add #{plugins.join(' ')}")
   FileUtils.cp_r("#{tmpl_path}/.","./")
   src = File.read('./src/boot/websocket.js')
-  src = src.gsub('#domain', ws_domain)
-  src = src.gsub('#port', ws_port)
+  src.gsub!('#domain', ws_domain)
+  src.gsub!('#port', ws_port)
   File.open('./src/boot/websocket.js', 'w') {|f| f.puts src }
   @logger.info 'Quasar package installed'
 else
