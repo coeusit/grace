@@ -26,6 +26,12 @@ else
     end
     phpmyadmin = ask('Include PHPMyAdmin in development stack? [Y/n] ')
     phpmyadmin = phpmyadmin.downcase == 'n' ? false : true
+    if phpmyadmin
+      phpmyadmin_port = ask('PHPMyAdmin port? [8925] ').to_i
+      if phpmyadmin_port == 0
+        phpmyadmin_port = 8925
+      end
+    end
     @logger.info phpmyadmin ? 'Enabling PHPMyAdmin' : 'Omitting PHPMyAdmin'
     Dir["#{$basepath}/base/core/."].each do |f|
       FileUtils.cp_r(f, "./#{project_name}")
@@ -96,7 +102,7 @@ else
             'db'
           ],
           'ports' => [
-            '8925:80'
+            "#{phpmyadmin_port.to_s}:80"
           ],
           'environment' => [
             'PMA_ARBITRARY=1'
