@@ -4,11 +4,11 @@ WORKDIR /app
 
 RUN apt-get update -qq && apt-get install -y build-essential
 
-COPY ./websocket/src/Gemfile ./
+COPY ./#name/src/Gemfile ./
 COPY ./Rakefile ./
 RUN bundle install
 
-COPY ./websocket/src .
+COPY ./#name/src .
 COPY ./common ./lib/common
 COPY ./entrypoint.sh /usr/bin
 RUN chmod +x /usr/bin/entrypoint.sh
