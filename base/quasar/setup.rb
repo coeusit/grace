@@ -22,7 +22,6 @@ if conn_method == 'websocket'
     'vue3-highlightjs'
   ]
   tmpl_path = "#{File.dirname(__FILE__)}/files"
-  yarn
   system("yarn add #{plugins.join(' ')}")
   FileUtils.cp_r("#{tmpl_path}/.","./")
   src = File.read('./src/boot/websocket.js')
