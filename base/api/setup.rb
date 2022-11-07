@@ -44,7 +44,7 @@ if seed_dev_country == ''
 end
 
 Dir.mkdir("./#{@s_name}")
-FileUtils.cp_r("./#{tmpl_path}/base/.","./#{@s_name}")
+FileUtils.cp_r("#{tmpl_path}/base/.","./#{@s_name}")
 src = File.read("./#{@s_name}/Dockerfile")
 src = src.gsub('#name', @s_name)
 File.open("./#{@s__name}/Dockerfile", 'w') {|f| f.puts src }
