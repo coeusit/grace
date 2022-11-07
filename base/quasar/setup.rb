@@ -12,7 +12,7 @@ if conn_method == 'websocket'
     '@babel/preset-typescript',
     '@tiptap/starter-kit',
     '@tiptap/vue-3',
-    'tiptap/extension-bubble-menu',
+    '@tiptap/extension-bubble-menu',
     'js-sha512',
     'pinia-orm',
     'qrcode.vue',
