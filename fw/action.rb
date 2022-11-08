@@ -11,7 +11,7 @@ class Action
       eval(_code)
     rescue Exception => e
       if ENV['RUBY_ENV'] == 'development'
-        logger = Mlog.new
+        logger = MLog.new
         logger.error "Failure executing action: #{e}"
         @response = {
           :action => 'server_error',
