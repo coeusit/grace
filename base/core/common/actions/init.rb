@@ -14,6 +14,7 @@ end
     :session_id => @session.uuid,
     :session_key => @session.key,
     :user_id => (_user != nil ? _user.uuid : nil),
+    :locale => (_user != nil ? _user.language.code : nil),
     :is_admin => (_user != nil ? _user.admin : false),
     :otp_passed => @session.otp_passed,
     :otp_enabled => @session.otp_enabled
