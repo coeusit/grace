@@ -59,16 +59,16 @@ class Server
     action = nil
     route_parts = _route.split('/')
     @_actions.each do |k,a|
-      params = []
+      params = {}
       k_parts = k.split('/')
       if k_parts.length == route_parts.length
         disqualified = false
         for i in 0..(k_parts.length-1)
           kp = k_parts[i]
           rp = route_parts[i]
-          if kp.slice!(0) == ':'
-            params[kp] = rp
-          elsif rp != k_parts[i]
+          if kp.chr == ':'
+            params[kp[1..-1]] = rp
+          elsif rp != kp
             disqualified = true
           end
         end
