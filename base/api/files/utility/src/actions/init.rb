@@ -13,11 +13,8 @@ end
   :response => {
     :session_id => @session.uuid,
     :session_key => @session.key,
-    :organization_id => (_user.organization_id != nil ? _user.organization.uuid : nil),
     :user_id => (_user != nil ? _user.uuid : nil),
-    :first_name => (_user != nil ? _user.first_name : nil),
-    :email => (_user != nil ? _user.email : nil),
-    :locale => (_user != nil ? _user.language.code : nil),
+    :locale => (_user != nil && _user.language != nil ? _user.language.code : nil),
     :is_admin => (_user != nil ? _user.admin : false),
     :otp_passed => @session.otp_passed,
     :otp_enabled => @session.otp_enabled
