@@ -16,7 +16,6 @@ if @params.has_key?('email') && @params.has_key?('password')
   if _u.count > 0
     _user = _u.first
   end
-  @logger.info _user.inspect
   if _user != nil && _user.authenticate(@params['password'])
     @session.set_admin(_user.admin)
     @session.set_user_id(_user.uuid)
