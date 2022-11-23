@@ -19,6 +19,7 @@ else
       smtp_conf[:relay][:RELAY_PORT] = ask('SMTP port? ')
       smtp_conf[:relay][:RELAY_USERNAME] = ask('SMTP username? ')
       smtp_conf[:relay][:RELAY_PASSWORD] = ask('SMTP password? ')
+      smtp_conf[:common][:SMTP_SERVER] = 'smtp'
       smtp_conf[:common][:SMTP_DOMAIN] = ask('Sender domain? (ex: example.com) ')
       smtp_conf[:common][:SMTP_FROM] = ask('Default From address? (ex: John Doe <john.doe@example.com>) ')
       smtp_conf[:common][:SMTP_SENDER] = ask('Default sender account? (ex: john.doe@example.com) ')
