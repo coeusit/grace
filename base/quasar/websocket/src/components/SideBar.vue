@@ -11,15 +11,6 @@
       </q-item-section>
     </q-item>
 
-    <q-item clickable to="/contact" v-ripple>
-      <q-item-section>
-        <q-item-label>Contact</q-item-label>
-        <q-item-label caption>
-          See your support messages
-        </q-item-label>
-      </q-item-section>
-    </q-item>
-
     <q-item clickable to="/authentication" v-ripple>
       <q-item-section>
         <q-item-label>Authentication</q-item-label>
@@ -46,15 +37,6 @@
         <q-item-label>Email</q-item-label>
         <q-item-label caption>
           Email settings
-        </q-item-label>
-      </q-item-section>
-    </q-item>
-
-    <q-item v-if="session.is_admin" clickable to="/contact/requests" v-ripple>
-      <q-item-section>
-        <q-item-label>Contact Requests</q-item-label>
-        <q-item-label caption>
-          Contact threads
         </q-item-label>
       </q-item-section>
     </q-item>

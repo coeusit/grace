@@ -3,6 +3,7 @@
     <q-header elevated v-if="session.initialized">
       <q-toolbar>
         <q-btn
+          v-if="session.initialized && essentialLinks.length > 0"
           flat
           dense
           round
@@ -24,7 +25,7 @@
       v-model="leftDrawerOpen"
       show-if-above
       bordered
-      v-if="session.initialized"
+      v-if="session.initialized && essentialLinks.length > 0"
     >
       <q-list>
         <template v-for="(link, linkIndex) in essentialLinks">
